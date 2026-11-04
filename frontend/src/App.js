@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 
-const API_BASE = "http://localhost:5000/api/rag";
+const API_BASE = "https://ai-assistant-application1.onrender.com/api/rag";
 
 // SVG Icons
 const SparklesIcon = () => (
