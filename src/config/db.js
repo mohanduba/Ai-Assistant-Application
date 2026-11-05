@@ -1,4 +1,3 @@
-
 const mysql = require("mysql2/promise");
 const fs = require("fs");
 const path = require("path");
@@ -12,22 +11,32 @@ if (process.env.DB_SSL_CA) {
     ca: process.env.DB_SSL_CA.replace(/\\n/g, "\n")
   };
 }
-
-// Local development: Read certificate from file
+// Local development or file-based CA
 else if (process.env.DB_SSL_CA_PATH) {
   const caPath = path.resolve(
     process.cwd(),
     process.env.DB_SSL_CA_PATH
   );
 
+  if (fs.existsSync(caPath)) {
+    sslConfig = {
+      ca: fs.readFileSync(caPath)
+    };
+  } else {
+    console.warn(`[db.js] Notice: CA cert file not found at "${caPath}". Using SSL with rejectUnauthorized: false.`);
+    sslConfig = {
+      rejectUnauthorized: false
+    };
+  }
+} else {
   sslConfig = {
-    ca: fs.readFileSync(caPath)
+    rejectUnauthorized: false
   };
 }
 
 const db = mysql.createPool({
   host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
+  port: Number(process.env.DB_PORT) || 3306,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
